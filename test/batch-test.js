@@ -261,7 +261,7 @@ module.exports.batchPutMissingKey = function(test, common) {
 }
 
 module.exports.batchPutMissingKeyAndValue = function(test, common) {
-  test('test batch#put() with missing `key` and `value`', function(t, done) {
+  test('batch#put() with missing `key` and `value`', function(t, done) {
     this.openTestDatabase(function(db) {
       var batch = db.batch()
       var expected = /WriteError: key cannot be `null` or `undefined`/
@@ -273,7 +273,7 @@ module.exports.batchPutMissingKeyAndValue = function(test, common) {
 }
 
 module.exports.batchDelMissingKey = function(test, common) {
-  test('test batch#del() with missing `key`', function(t, done) {
+  test('batch#del() with missing `key`', function(t, done) {
     this.openTestDatabase(function(db) {
       var batch = db.batch()
       var expected = /WriteError: key cannot be `null` or `undefined`/
@@ -285,7 +285,7 @@ module.exports.batchDelMissingKey = function(test, common) {
 }
 
 module.exports.batchWriteNoCallback = function(test, common) {
-  test('test batch#write() with no callback', function(t, done) {
+  test('batch#write() with no callback', function(t, done) {
     this.openTestDatabase(function(db) {
       var batch = db.batch()
       batch.write() // should not cause an error with no cb
@@ -296,7 +296,7 @@ module.exports.batchWriteNoCallback = function(test, common) {
 }
 
 module.exports.batchAfterWrite = function(test, common) {
-  test('test batch operations after write()', function(t, done) {
+  test('batch operations after write()', function(t, done) {
     this.openTestDatabase(function(db) {
       var expected = /WriteError: write\(\) already called on this batch/
       var operations = [

@@ -66,16 +66,15 @@ module.exports.commonTearDown = function (done) {
 }
 
 module.exports.loadBinaryTestData = function (callback) {
-  fs.readFile(path.join(__dirname, 'data/testdata.bin'), callback)
+  fs.readFile(path.join(__dirname, 'test/data/testdata.bin'), callback)
 }
 
 module.exports.binaryTestDataMD5Sum = '920725ef1a3b32af40ccd0b78f4a62fd'
 
-module.exports.checkBinaryTestData = function (testData, callback) {
+module.exports.checkBinaryTestData = function (t, testData) {
   var md5sum = crypto.createHash('md5');
   md5sum.update(testData)
-  assert.equals(md5sum.digest('hex'), module.exports.binaryTestDataMD5Sum)
-  callback()
+  t.equals(md5sum.digest('hex'), module.exports.binaryTestDataMD5Sum)
 }
 
 module.exports.commonSetUp = function (levelup, done) {

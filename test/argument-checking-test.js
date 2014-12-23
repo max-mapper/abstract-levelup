@@ -4,7 +4,7 @@
  */
 
 module.exports.testGetThrowables = function(test, common) {
-  test('test get() throwables', function(t, done) {
+  test('get() throwables', function(t, done) {
     this.openTestDatabase(function(db) {
       var expected = /ReadError: get\(\) requires key and callback arguments/
       t.throws(db.get.bind(db), expected, 'no-arg get() throws')
@@ -16,7 +16,7 @@ module.exports.testGetThrowables = function(test, common) {
 }
 
 module.exports.testPutThrowables = function(test, common) {
-  test('test put() throwables', function(t, done) {
+  test('put() throwables', function(t, done) {
     this.openTestDatabase(function(db) {
       var expected = /WriteError: put\(\) requires key and value arguments/
       t.throws(db.put.bind(db), expected, 'no-arg put() throws')
@@ -27,7 +27,7 @@ module.exports.testPutThrowables = function(test, common) {
 }
 
 module.exports.testDelThrowables = function(test, common) {
-  test('test del() throwables', function(t, done) {
+  test('del() throwables', function(t, done) {
     this.openTestDatabase(function(db) {
       var expected = /WriteError: del\(\) requires a key argument/
       t.throws(db.del.bind(db), expected, 'no-arg del() throws')
@@ -37,7 +37,7 @@ module.exports.testDelThrowables = function(test, common) {
 }
 
 module.exports.testApproximateSizeThrowables = function(test, common) {
-  test('test approximateSize() throwables', function(t, done) {
+  test('approximateSize() throwables', function(t, done) {
     this.openTestDatabase(function(db) {
       var expected = /ReadError: approximateSize\(\) requires start, end and callback arguments/
       t.throws(db.approximateSize.bind(db), expected, 'no-arg approximateSize() throws')
@@ -50,7 +50,7 @@ module.exports.testApproximateSizeThrowables = function(test, common) {
 }
 
 module.exports.testBatchThrowables = function(test, common) {
-  test('test batch() throwables', function(t, done) {
+  test('batch() throwables', function(t, done) {
     this.openTestDatabase(function(db) {
       var expected = /WriteError: batch\(\) requires an array argument/
       t.throws(db.batch.bind(db, null, {}), expected, 'no-arg batch() throws')

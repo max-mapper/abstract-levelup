@@ -3,168 +3,220 @@
  * MIT License <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var async   = require('async')
-  , common  = require('./common')
+var async = require('async')
 
-  , assert  = require('referee').assert
-  , refute  = require('referee').refute
-  , buster  = require('bustermove')
+module.exports.sanityCheck = function(test, common) {
+  test('sanity check on test data', function(t, done) {
+    this.openTestDatabase(function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no err')
+        t.ok(Buffer.isBuffer(data), 'is buffer')
+        common.checkBinaryTestData(t, data, 'checksum matches')
+        done()
+      })
+    })
+  })
+}
 
-buster.testCase('Binary API', {
-    'setUp': function (done) {
-      common.commonSetUp.call(this, function () {
-        common.loadBinaryTestData(function (err, data) {
-          refute(err)
-          this.testData = data
-          done()
-        }.bind(this))
-      }.bind(this))
-    }
-
-  , 'tearDown': common.commonTearDown
-
-  , 'sanity check on test data': function (done) {
-      assert(Buffer.isBuffer(this.testData))
-      common.checkBinaryTestData(this.testData, done)
-    }
-
-  , 'test put() and get() with binary value {encoding:binary}': function (done) {
-      this.openTestDatabase(function (db) {
-        db.put('binarydata', this.testData, { encoding: 'binary' }, function (err) {
-          refute(err)
+module.exports.putGetBinaryValue = function(test, common) {
+  test('put() and get() with binary value {encoding:binary}', function(t, done) {
+    this.openTestDatabase(function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no error')
+        db.put('binarydata', data, { encoding: 'binary' }, function (err) {
+          if (err) t.ifErr(err, 'no error')
           db.get('binarydata', { encoding: 'binary' }, function (err, value) {
-            refute(err)
-            assert(value)
-            common.checkBinaryTestData(value, done)
-          })
-        })
-      }.bind(this))
-    }
-
-  , 'test put() and get() with binary value {encoding:binary} on createDatabase()': function (done) {
-      this.openTestDatabase({ createIfMissing: true, errorIfExists: true, encoding: 'binary' }, function (db) {
-        db.put('binarydata', this.testData, function (err) {
-          refute(err)
-          db.get('binarydata', function (err, value) {
-            refute(err)
-            assert(value)
-            common.checkBinaryTestData(value, done)
-          })
-        })
-      }.bind(this))
-    }
-
-  , 'test put() and get() with binary key {encoding:binary}': function (done) {
-      this.openTestDatabase(function (db) {
-        db.put(this.testData, 'binarydata', { encoding: 'binary' }, function (err) {
-          refute(err)
-          db.get(this.testData, { encoding: 'binary' }, function (err, value) {
-            refute(err)
-            assert(value instanceof Buffer, 'value is buffer')
-            assert.equals(value.toString(), 'binarydata')
+            if (err) t.ifErr(err, 'no error')
+            t.ok(value, 'got value')
+            common.checkBinaryTestData(t, value)
             done()
-          }.bind(this))
-        }.bind(this))
-      }.bind(this))
-    }
+          })
+        })
+      })
+    })
+  })
+}
 
-  , 'test put() and get() with binary value {keyEncoding:utf8,valueEncoding:binary}': function (done) {
-      this.openTestDatabase(function (db) {
-        db.put('binarydata', this.testData, { keyEncoding: 'utf8', valueEncoding: 'binary' }, function (err) {
-          refute(err)
+module.exports.putGetBinaryValueCreateDb = function(test, common) {
+  test('put() and get() with binary value {encoding:binary} on createDatabase()', function(t, done) {
+    this.openTestDatabase({ createIfMissing: true, errorIfExists: true, encoding: 'binary' }, function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no error')
+        db.put('binarydata', data, function (err) {
+          if (err) t.ifErr(err, 'no error')
+          db.get('binarydata', function (err, value) {
+            if (err) t.ifErr(err, 'no error')
+            t.ok(value, 'got value')
+            common.checkBinaryTestData(t, value)
+            done()
+          })
+        })
+      })
+    })
+  })
+}
+
+module.exports.putGetBinaryKey = function(test, common) {
+  test('put() and get() with binary key {encoding:binary}', function(t, done) {
+    this.openTestDatabase(function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no error')
+        db.put(data, 'binarydata', { encoding: 'binary' }, function (err) {
+          if (err) t.ifErr(err, 'no error')
+          db.get(data, { encoding: 'binary' }, function (err, value) {
+            if (err) t.ifErr(err, 'no error')
+            t.ok(value instanceof Buffer, 'value is buffer')
+            t.equals(value.toString(), 'binarydata', 'value matches')
+            done()
+          })
+        })
+      })
+    })
+  })
+}
+
+module.exports.putGetBinaryValueUtf8Binary = function(test, common) {
+  test('put() and get() with binary value {keyEncoding:utf8,valueEncoding:binary}', function(t, done) {
+    this.openTestDatabase(function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no error')
+        db.put('binarydata', data, { keyEncoding: 'utf8', valueEncoding: 'binary' }, function (err) {
+          if (err) t.ifErr(err, 'no error')
           db.get('binarydata', { keyEncoding: 'utf8', valueEncoding: 'binary' }, function (err, value) {
-            refute(err)
-            assert(value)
-            common.checkBinaryTestData(value, done)
-          })
-        })
-      }.bind(this))
-    }
-
-  , 'test put() and get() with binary value {keyEncoding:utf8,valueEncoding:binary} on createDatabase()': function (done) {
-      this.openTestDatabase({ createIfMissing: true, errorIfExists: true, keyEncoding: 'utf8', valueEncoding: 'binary' }, function (db) {
-        db.put('binarydata', this.testData, function (err) {
-          refute(err)
-          db.get('binarydata', function (err, value) {
-            refute(err)
-            assert(value)
-            common.checkBinaryTestData(value, done)
-          })
-        })
-      }.bind(this))
-    }
-
-  , 'test put() and get() with binary key {keyEncoding:binary,valueEncoding:utf8}': function (done) {
-      this.openTestDatabase(function (db) {
-        db.put(this.testData, 'binarydata', { keyEncoding: 'binary', valueEncoding: 'utf8' }, function (err) {
-          refute(err)
-          db.get(this.testData, { keyEncoding: 'binary', valueEncoding: 'utf8' }, function (err, value) {
-            refute(err)
-            assert.equals(value, 'binarydata')
+            if (err) t.ifErr(err, 'no error')
+            t.ok(value, 'has value')
+            common.checkBinaryTestData(t, value)
             done()
-          }.bind(this))
-        }.bind(this))
-      }.bind(this))
-    }
+          })
+        })
+      })
+    })
+  })
+}
 
-  , 'test put() and get() with binary key & value {encoding:binary}': function (done) {
-      this.openTestDatabase(function (db) {
-        db.put(this.testData, this.testData, { encoding: 'binary' }, function (err) {
-          refute(err)
-          db.get(this.testData, { encoding: 'binary' }, function (err, value) {
-            refute(err)
-            common.checkBinaryTestData(value, done)
-          }.bind(this))
-        }.bind(this))
-      }.bind(this))
-    }
+module.exports.putGetBinaryValueUtf8BinaryCreateDb = function(test, common) {
+  test('put() and get() with binary value {keyEncoding:utf8,valueEncoding:binary} on createDatabase()', function(t, done) {
+    this.openTestDatabase({ createIfMissing: true, errorIfExists: true, keyEncoding: 'utf8', valueEncoding: 'binary' }, function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no error')
+        db.put('binarydata', data, function (err) {
+          if (err) t.ifErr(err, 'no error')
+          db.get('binarydata', function (err, value) {
+            if (err) t.ifErr(err, 'no error')
+            t.ok(value, 'has value')
+            common.checkBinaryTestData(t, value)
+            done()
+          })
+        })
+      })
+    })
+  })
+}
 
+module.exports.putGetBinaryKeyUtf8Binary = function(test, common) {
+  test('put() and get() with binary key {keyEncoding:binary,valueEncoding:utf8}', function(t, done) {
+    this.openTestDatabase(function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no error')
+        db.put(data, 'binarydata', { keyEncoding: 'binary', valueEncoding: 'utf8' }, function (err) {
+          if (err) t.ifErr(err, 'no error')
+          db.get(data, { keyEncoding: 'binary', valueEncoding: 'utf8' }, function (err, value) {
+            if (err) t.ifErr(err, 'no error')
+            t.equals(value, 'binarydata', 'value matches')
+            done()
+          })
+        })
+      })
+    })
+  })
+}
 
-  , 'test put() and del() and get() with binary key {encoding:binary}': function (done) {
-      this.openTestDatabase(function (db) {
-        db.put(this.testData, 'binarydata', { encoding: 'binary' }, function (err) {
-          refute(err)
-          db.del(this.testData, { encoding: 'binary' }, function (err) {
-            refute(err)
-            db.get(this.testData, { encoding: 'binary' }, function (err, value) {
-              assert(err)
-              refute(value)
+module.exports.putGetBinaryKeyValue = function(test, common) {
+  test('put() and get() with binary key & value {encoding:binary}', function(t, done) {
+    this.openTestDatabase(function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no error')
+        db.put(data, data, { encoding: 'binary' }, function (err) {
+          if (err) t.ifErr(err, 'no error')
+          db.get(data, { encoding: 'binary' }, function (err, value) {
+            if (err) t.ifErr(err, 'no error')
+            common.checkBinaryTestData(t, value)
+            done()
+          })
+        })
+      })
+    })
+  })
+}
+
+module.exports.putDelGetBinaryKey = function(test, common) {
+  test('put() and del() and get() with binary key {encoding:binary}', function(t, done) {
+    this.openTestDatabase(function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no error')
+        db.put(data, 'binarydata', { encoding: 'binary' }, function (err) {
+          if (err) t.ifErr(err, 'no error')
+          db.del(data, { encoding: 'binary' }, function (err) {
+            if (err) t.ifErr(err, 'no error')
+            db.get(data, { encoding: 'binary' }, function (err, value) {
+              t.ok(err, 'got error')
+              t.notOk(value, 'no value')
               done()
-            }.bind(this))
-          }.bind(this))
-        }.bind(this))
-      }.bind(this))
-    }
+            })
+          })
+        })
+      })
+    })
+  })
+}
 
-  , 'batch() with multiple puts': function (done) {
-      this.openTestDatabase(function (db) {
+module.exports.batchMultiplePuts = function(test, common) {
+  test('batch() with multiple puts', function(t, done) {
+    this.openTestDatabase(function(db) {
+      common.loadBinaryTestData(function (err, data) {
+        if (err) t.ifErr(err, 'no error')
         db.batch(
-            [
-                { type: 'put', key: 'foo', value: this.testData }
-              , { type: 'put', key: 'bar', value: this.testData }
-              , { type: 'put', key: 'baz', value: 'abazvalue' }
-            ]
-          , { keyEncoding: 'utf8',valueEncoding: 'binary' }
-          , function (err) {
-              refute(err)
-              async.forEach(
-                  ['foo', 'bar', 'baz']
-                , function (key, callback) {
-                    db.get(key, { encoding: 'binary' }, function (err, value) {
-                      refute(err)
-                      if (key == 'baz') {
-                        assert(value instanceof Buffer, 'value is buffer')
-                        assert.equals(value.toString(), 'a' + key + 'value')
-                        callback()
-                      } else {
-                        common.checkBinaryTestData(value, callback)
-                      }
-                    })
+          [
+            { type: 'put', key: 'foo', value: data },
+            { type: 'put', key: 'bar', value: data },
+            { type: 'put', key: 'baz', value: 'abazvalue' }
+          ],
+          { keyEncoding: 'utf8', valueEncoding: 'binary' },
+          function (err) {
+            if (err) t.ifErr(err, 'no error')
+            async.forEach(
+              ['foo', 'bar', 'baz'],
+              function (key, callback) {
+                db.get(key, { encoding: 'binary' }, function (err, value) {
+                  if (err) t.ifErr(err, 'no error')
+                  if (key == 'baz') {
+                    t.ok(value instanceof Buffer, 'value is buffer')
+                    t.equals(value.toString(), 'a' + key + 'value', 'value matches')
+                    callback()
+                  } else {
+                    common.checkBinaryTestData(t, value)
+                    callback()
                   }
-                , done
-              )
-            }.bind(this)
+                })
+              },
+              done
+            )
+          }
         )
-      }.bind(this))
-    }
-})
+      })
+    })
+  })
+}
+
+module.exports.all = function(test, common) {
+  module.exports.sanityCheck(test, common)
+  module.exports.putGetBinaryValue(test, common)
+  module.exports.putGetBinaryValueCreateDb(test, common)
+  module.exports.putGetBinaryKey(test, common)
+  module.exports.putGetBinaryValueUtf8Binary(test, common)
+  module.exports.putGetBinaryValueUtf8BinaryCreateDb(test, common)
+  module.exports.putGetBinaryKeyUtf8Binary(test, common)
+  module.exports.putGetBinaryKeyValue(test, common)
+  module.exports.putDelGetBinaryKey(test, common)
+  module.exports.batchMultiplePuts(test, common) 
+}
