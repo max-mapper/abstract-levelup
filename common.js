@@ -3,39 +3,13 @@
  * MIT License <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var referee = require('referee')
-  , assert  = referee.assert
-  , refute  = referee.refute
-  , crypto  = require('crypto')
+var crypto  = require('crypto')
   , async   = require('async')
   , rimraf  = require('rimraf')
   , fs      = require('fs')
   , path    = require('path')
   , delayed = require('delayed').delayed
-  , levelup = require('../lib/levelup.js')
   , dbidx   = 0
-
-referee.add('isInstanceOf', {
-    assert: function (actual, expected) {
-        return actual instanceof expected
-    }
-  , refute: function (actual, expected) {
-        return !(actual instanceof expected)
-    }
-  , assertMessage: '${0} expected to be instance of ${1}'
-  , refuteMessage: '${0} expected not to be instance of ${1}'
-})
-
-referee.add('isUndefined', {
-    assert: function (actual) {
-        return actual === undefined
-    }
-  , refute: function (actual) {
-        return actual !== undefined
-    }
-  , assertMessage: '${0} expected to be undefined'
-  , refuteMessage: '${0} expected not to be undefined'
-})
 
 module.exports.nextLocation = function () {
   return path.join(__dirname, '_levelup_test_db_' + dbidx++)
@@ -69,10 +43,10 @@ module.exports.openTestDatabase = function () {
     , location = typeof arguments[0] == 'string' ? arguments[0] : module.exports.nextLocation()
 
   rimraf(location, function (err) {
-    refute(err)
+    this.test.ifErr(err, 'no err')
     this.cleanupDirs.push(location)
-    levelup(location, options, function (err, db) {
-      refute(err)
+    this.levelup(location, options, function (err, db) {
+      this.test.ifErr(err, 'no err')
       if (!err) {
         this.closeableDatabases.push(db)
         callback(db)
@@ -104,7 +78,8 @@ module.exports.checkBinaryTestData = function (testData, callback) {
   callback()
 }
 
-module.exports.commonSetUp = function (done) {
+module.exports.commonSetUp = function (levelup, done) {
+  this.levelup = levelup
   this.cleanupDirs = []
   this.closeableDatabases = []
   this.openTestDatabase = module.exports.openTestDatabase.bind(this)
