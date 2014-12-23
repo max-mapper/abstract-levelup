@@ -43,10 +43,10 @@ module.exports.openTestDatabase = function () {
     , location = typeof arguments[0] == 'string' ? arguments[0] : module.exports.nextLocation()
 
   rimraf(location, function (err) {
-    this.test.ifErr(err, 'no err')
+    if (err) t.ifErr(err, 'no err')
     this.cleanupDirs.push(location)
     this.levelup(location, options, function (err, db) {
-      this.test.ifErr(err, 'no err')
+      if (err) t.ifErr(err, 'no err')
       if (!err) {
         this.closeableDatabases.push(db)
         callback(db)
