@@ -1,0 +1,17 @@
+{
+  "name": "abstract-levelup",
+  "version": "1.0.0",
+  "description": "the levelup test suite for conformance testing across implementations",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "leveldb",
+    "levelup",
+    "leveldown",
+    "level"
+  ],
+  "author": "max ogden",
+  "license": "BSD"
+}
