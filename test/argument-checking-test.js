@@ -3,120 +3,67 @@
  * MIT License <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var common  = require('./common')
+module.exports.testGetThrowables = function(test, common) {
+  test('test get() throwables', function(t, done) {
+    this.openTestDatabase(function(db) {
+      var expected = /ReadError: get\(\) requires key and callback arguments/
+      t.throws(db.get.bind(db), expected, 'no-arg get() throws')
+      t.throws(db.get.bind(db, 'foo'), expected, '1-arg get() throws')
+      t.throws(db.get.bind(db, 'foo', {}), expected, '2-arg get() throws')
+      done()
+    })
+  })
+}
 
-  , assert  = require('referee').assert
-  , refute  = require('referee').refute
-  , buster  = require('bustermove')
+module.exports.testPutThrowables = function(test, common) {
+  test('test put() throwables', function(t, done) {
+    this.openTestDatabase(function(db) {
+      var expected = /WriteError: put\(\) requires key and value arguments/
+      t.throws(db.put.bind(db), expected, 'no-arg put() throws')
+      t.throws(db.put.bind(db, 'foo'), expected, '1-arg put() throws')
+      done()
+    })
+  })
+}
 
-buster.testCase('Argument checking', {
-    'setUp': common.commonSetUp
-  , 'tearDown': common.commonTearDown
+module.exports.testDelThrowables = function(test, common) {
+  test('test del() throwables', function(t, done) {
+    this.openTestDatabase(function(db) {
+      var expected = /WriteError: del\(\) requires a key argument/
+      t.throws(db.del.bind(db), expected, 'no-arg del() throws')
+      done()
+    })
+  })
+}
 
-  , 'test get() throwables': function (done) {
-      this.openTestDatabase(function (db) {
+module.exports.testApproximateSizeThrowables = function(test, common) {
+  test('test approximateSize() throwables', function(t, done) {
+    this.openTestDatabase(function(db) {
+      var expected = /ReadError: approximateSize\(\) requires start, end and callback arguments/
+      t.throws(db.approximateSize.bind(db), expected, 'no-arg approximateSize() throws')
+      t.throws(db.approximateSize.bind(db, 'foo'), expected, 'callback-less, 1-arg approximateSize() throws')
+      t.throws(db.approximateSize.bind(db, 'foo', 'bar'), expected, 'callback-less, 2-arg approximateSize() throws')
+      t.throws(db.approximateSize.bind(db, 'foo', 'bar', {}), expected, 'callback-less, 3-arg approximateSize(), no cb throws')
+      done()
+    })
+  })
+}
 
-        assert.exception(
-            db.get.bind(db)
-          , { name: 'ReadError', message: 'get() requires key and callback arguments' }
-          , 'no-arg get() throws'
-        )
+module.exports.testBatchThrowables = function(test, common) {
+  test('test batch() throwables', function(t, done) {
+    this.openTestDatabase(function(db) {
+      var expected = /WriteError: batch\(\) requires an array argument/
+      t.throws(db.batch.bind(db, null, {}), expected, 'no-arg batch() throws')
+      t.throws(db.batch.bind(db, {}), expected, '1-arg, no Array batch() throws')
+      done()
+    })
+  })
+}
 
-        assert.exception(
-            db.get.bind(db, 'foo')
-          , { name: 'ReadError', message: 'get() requires key and callback arguments' }
-          , 'callback-less, 1-arg get() throws'
-        )
-
-        assert.exception(
-            db.get.bind(db, 'foo', {})
-          , { name: 'ReadError', message: 'get() requires key and callback arguments' }
-          , 'callback-less, 2-arg get() throws'
-        )
-
-        done()
-      })
-    }
-
-  , 'test put() throwables': function (done) {
-      this.openTestDatabase(function (db) {
-
-        assert.exception(
-            db.put.bind(db)
-          , { name: 'WriteError', message: 'put() requires key and value arguments' }
-          , 'no-arg put() throws'
-        )
-
-        assert.exception(
-            db.put.bind(db, 'foo')
-          , { name: 'WriteError', message: 'put() requires key and value arguments' }
-          , 'callback-less, 1-arg put() throws'
-        )
-
-        done()
-      })
-    }
-
-  , 'test del() throwables': function (done) {
-      this.openTestDatabase(function (db) {
-
-        assert.exception(
-            db.del.bind(db)
-          , { name: 'WriteError', message: 'del() requires a key argument' }
-          , 'no-arg del() throws'
-        )
-
-        done()
-      })
-    }
-
-  , 'test approximateSize() throwables': function (done) {
-      this.openTestDatabase(function (db) {
-
-        assert.exception(
-            db.approximateSize.bind(db)
-          , { name: 'ReadError', message: 'approximateSize() requires start, end and callback arguments' }
-          , 'no-arg approximateSize() throws'
-        )
-
-        assert.exception(
-            db.approximateSize.bind(db, 'foo')
-          , { name: 'ReadError', message: 'approximateSize() requires start, end and callback arguments' }
-          , 'callback-less, 1-arg approximateSize() throws'
-        )
-
-        assert.exception(
-            db.approximateSize.bind(db, 'foo', 'bar')
-          , { name: 'ReadError', message: 'approximateSize() requires start, end and callback arguments' }
-          , 'callback-less, 2-arg approximateSize() throws'
-        )
-
-        assert.exception(
-            db.approximateSize.bind(db, 'foo', 'bar', {})
-          , { name: 'ReadError', message: 'approximateSize() requires start, end and callback arguments' }
-          , 'callback-less, 3-arg approximateSize(), no cb throws'
-        )
-
-        done()
-      })
-    }
-
-  , 'test batch() throwables': function (done) {
-      this.openTestDatabase(function (db) {
-
-        assert.exception(
-            db.batch.bind(db, null, {})
-          , { name: 'WriteError', message: 'batch() requires an array argument' }
-          , 'no-arg batch() throws'
-        )
-
-        assert.exception(
-            db.batch.bind(db, {})
-          , { name: 'WriteError', message: 'batch() requires an array argument' }
-          , '1-arg, no Array batch() throws'
-        )
-
-        done()
-      })
-    }
-})
+module.exports.all = function(test, common) {
+  module.exports.testGetThrowables(test, common)
+  module.exports.testPutThrowables(test, common)
+  module.exports.testDelThrowables(test, common)
+  module.exports.testApproximateSizeThrowables(test, common)
+  module.exports.testBatchThrowables(test, common)
+}

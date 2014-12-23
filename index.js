@@ -1,8 +1,8 @@
 // dont dynamically generate requires here to keep browserify compat
 module.exports = function(test, common) {
   require('./test/approximate-size-test.js').all(test, common)
-  // require('./test/argument-checking-test.js').all(test, common)
-  // require('./test/batch-test.js').all(test, common)
+  require('./test/argument-checking-test.js').all(test, common)
+  require('./test/batch-test.js').all(test, common)
   // require('./test/binary-test.js').all(test, common)
   // require('./test/compression-test.js').all(test, common)
   // require('./test/copy-test.js.js').all(test, common)

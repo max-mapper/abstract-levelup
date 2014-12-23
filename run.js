@@ -1,6 +1,10 @@
 var common = require('./common.js')
 var test = require('tape')
+
 var levelup = require('levelup')
+// TODO modularize levelup errors
+var errors  = require('levelup/lib/errors.js')
+common.errors = errors
 
 var tests = require('./')(createTest, common)
 
