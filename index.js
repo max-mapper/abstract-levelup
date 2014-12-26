@@ -4,7 +4,7 @@ module.exports = function(test, common) {
   require('./test/argument-checking-test.js').all(test, common)
   require('./test/batch-test.js').all(test, common)
   require('./test/binary-test.js').all(test, common)
-  // require('./test/compression-test.js').all(test, common)
+  require('./test/compression-test.js').all(test, common)
   // require('./test/copy-test.js.js').all(test, common)
   // require('./test/deferred-open-test.js').all(test, common)
   // require('./test/destroy-repair-test.js').all(test, common)
