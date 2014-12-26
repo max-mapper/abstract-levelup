@@ -3,66 +3,62 @@
  * MIT License <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var levelup = require('../lib/levelup.js')
-  , async   = require('async')
-  , common  = require('./common')
+var async  = require('async')
 
-  , assert  = require('referee').assert
-  , refute  = require('referee').refute
-  , buster  = require('bustermove')
+module.exports.copyDb = function(test, common) {
+  test('copy full database', function(t, done) {
+    var self = this
+    var sourceData = []
 
-buster.testCase('Copy', {
-    'setUp': common.commonSetUp
-  , 'tearDown': common.commonTearDown
-
-  , 'copy full database': function (done) {
-      var sourceData = []
-
-      for (var i = 0; i < 100; i++) {
-        sourceData.push({
-            type  : 'put'
-          , key   : i
-          , value : Math.random()
+    for (var i = 0; i < 100; i++) {
+      sourceData.push({
+        type  : 'put',
+        key   : i,
+        value : Math.random()
+      })
+    }
+    
+    async.parallel(
+      { src: opensrc, dst: opendst },
+      function (err, dbs) {
+        if (err) return t.ifErr(err)
+        self.levelup.copy(dbs.src, dbs.dst, function (err) {
+          if (err) return t.ifErr(err)
+          verify(dbs.dst)
         })
       }
+    )
 
-      var opensrc = function (callback) {
-            this.openTestDatabase(function (db) {
-              db.batch(sourceData.slice(), function (err) {
-                callback(err, db)
-              })
-            })
-          }.bind(this)
+    function opensrc(callback) {
+      self.openTestDatabase(function (db) {
+        db.batch(sourceData.slice(), function (err) {
+          callback(err, db)
+        })
+      })
+    }
 
-        , opendst = function (callback) {
-            this.openTestDatabase(function (db) {
-              callback(null, db)
-            })
-          }.bind(this)
+    function opendst(callback) {
+      self.openTestDatabase(function (db) {
+        callback(null, db)
+      })
+    }
 
-        , verify = function (dstdb) {
-            async.forEach(
-                sourceData
-              , function (data, callback) {
-                  dstdb.get(data.key, function (err, value) {
-                    refute(err)
-                    assert.equals(+value.toString(), data.value, 'Destination data #' + data.key + ' has correct value')
-                    callback()
-                  })
-                }
-              , done
-            )
-          }.bind(this)
-
-      async.parallel(
-          { src: opensrc, dst: opendst }
-        , function (err, dbs) {
-            refute(err)
-            levelup.copy(dbs.src, dbs.dst, function (err) {
-              refute(err)
-              verify(dbs.dst)
-            })
-          }
+    function verify(dstdb) {
+      async.forEach(
+        sourceData,
+        function (data, callback) {
+          dstdb.get(data.key, function (err, value) {
+            if (err) return t.ifErr(err)
+            t.equals(+value.toString(), data.value, 'Destination data #' + data.key + ' has correct value')
+            callback()
+          })
+        },
+        done
       )
     }
-})
+  })
+}
+
+module.exports.all = function(test, common) {
+  module.exports.copyDb(test, common)
+}
