@@ -6,7 +6,7 @@ module.exports = function(test, common) {
   require('./test/binary-test.js').all(test, common)
   require('./test/compression-test.js').all(test, common)
   require('./test/copy-test.js').all(test, common)
-  // require('./test/deferred-open-test.js').all(test, common)
+  require('./test/deferred-open-test.js').all(test, common)
   // require('./test/destroy-repair-test.js').all(test, common)
   // require('./tes./tencoding-test.js').all(test, common)
   // require('./test/get-put-del-test.js').all(test, common)

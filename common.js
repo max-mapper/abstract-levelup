@@ -86,45 +86,49 @@ module.exports.commonSetUp = function (levelup, done) {
   module.exports.cleanup(done)
 }
 
-module.exports.readStreamSetUp = function (done) {
-  module.exports.commonSetUp.call(this, function () {
-    var i, k
+module.exports.readStreamSetUp = function (t) {
+  var i, k
+  var dataEvents = []
+  var dataCount = 0
+  var endCount = 0
+  
+  this.dataSpy = function() {
+    dataCount++
+    var args = [].slice.call(arguments)
+    dataEvents.push({args: args})
+  }
+  
+  this.endSpy = function() { endCount++ }
 
-    this.dataSpy    = this.spy()
-    this.endSpy     = this.spy()
-    this.sourceData = []
+  this.sourceData = []
 
-    for (i = 0; i < 100; i++) {
-      k = (i < 10 ? '0' : '') + i
-      this.sourceData.push({
-          type  : 'put'
-        , key   : k
-        , value : Math.random()
-      })
-    }
+  for (i = 0; i < 100; i++) {
+    k = (i < 10 ? '0' : '') + i
+    this.sourceData.push({
+      type  : 'put',
+      key   : k,
+      value : Math.random()
+    })
+  }
 
-    this.verify = delayed(function (rs, done, data) {
-      if (!data) data = this.sourceData // can pass alternative data array for verification
-      assert.equals(this.endSpy.callCount, 1, 'ReadStream emitted single "end" event')
-      assert.equals(this.dataSpy.callCount, data.length, 'ReadStream emitted correct number of "data" events')
-      data.forEach(function (d, i) {
-        var call = this.dataSpy.getCall(i)
-        if (call) {
-          assert.equals(call.args.length, 1, 'ReadStream "data" event #' + i + ' fired with 1 argument')
-          refute.isNull(call.args[0].key, 'ReadStream "data" event #' + i + ' argument has "key" property')
-          refute.isNull(call.args[0].value, 'ReadStream "data" event #' + i + ' argument has "value" property')
-          assert.equals(call.args[0].key, d.key, 'ReadStream "data" event #' + i + ' argument has correct "key"')
-          assert.equals(
-              +call.args[0].value
-            , +d.value
-            , 'ReadStream "data" event #' + i + ' argument has correct "value"'
-          )
-        }
-      }.bind(this))
-      done()
-    }, 0.05, this)
-
+  this.verify = delayed(function (rs, done, data) {
+    if (!data) data = this.sourceData // can pass alternative data array for verification
+    t.equals(endCount, 1, 'ReadStream emitted single "end" event')
+    t.equals(dataCount, data.length, 'ReadStream emitted correct number of "data" events')
+    data.forEach(function (d, i) {
+      var call = dataEvents[i]
+      if (call) {
+        t.equals(call.args.length, 1, 'ReadStream "data" event #' + i + ' fired with 1 argument')
+        t.ok(call.args[0].key, 'ReadStream "data" event #' + i + ' argument has "key" property')
+        t.ok(call.args[0].value, 'ReadStream "data" event #' + i + ' argument has "value" property')
+        t.equals(call.args[0].key, d.key, 'ReadStream "data" event #' + i + ' argument has correct "key"')
+        t.equals(
+          +call.args[0].value,
+          +d.value,
+          'ReadStream "data" event #' + i + ' argument has correct "value"'
+        )
+      }
+    }.bind(this))
     done()
-
-  }.bind(this))
+  }, 0.05, this)
 }
