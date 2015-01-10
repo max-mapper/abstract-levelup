@@ -8,7 +8,7 @@ module.exports = function(test, common) {
   require('./test/copy-test.js').all(test, common)
   require('./test/deferred-open-test.js').all(test, common)
   // require('./test/destroy-repair-test.js').all(test, common)
-  // require('./tes./tencoding-test.js').all(test, common)
+  require('./test/encoding-test.js').all(test, common)
   // require('./test/get-put-del-test.js').all(test, common)
   // require('./test/idempotent-test.js').all(test, common)
   // require('./test/init-test.js').all(test, common)

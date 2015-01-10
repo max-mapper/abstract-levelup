@@ -3,7 +3,7 @@
  * MIT License <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var async   = require('async')
+var async = require('async')
 
 module.exports.putGetPreOpen = function(test, common) {
   test('put() and get() on pre-opened database', function(t, done) {

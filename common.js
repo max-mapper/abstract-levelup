@@ -88,17 +88,24 @@ module.exports.commonSetUp = function (levelup, done) {
 
 module.exports.readStreamSetUp = function (t) {
   var i, k
-  var dataEvents = []
-  var dataCount = 0
-  var endCount = 0
+  var self = this
+  this.dataEvents = []
+  this.errorEvents = []
+  this.dataCount = 0
+  this.endCount = 0
+  this.errorCount = 0
   
   this.dataSpy = function() {
-    dataCount++
+    self.dataCount++
     var args = [].slice.call(arguments)
-    dataEvents.push({args: args})
+    self.dataEvents.push({args: args})
   }
   
-  this.endSpy = function() { endCount++ }
+  this.endSpy = function() { self.endCount++ }
+  this.errorSpy = function(e) {
+    self.errorCount++
+    self.errorEvents.push(e)
+  }
 
   this.sourceData = []
 
@@ -113,10 +120,10 @@ module.exports.readStreamSetUp = function (t) {
 
   this.verify = delayed(function (rs, done, data) {
     if (!data) data = this.sourceData // can pass alternative data array for verification
-    t.equals(endCount, 1, 'ReadStream emitted single "end" event')
-    t.equals(dataCount, data.length, 'ReadStream emitted correct number of "data" events')
+    t.equals(self.endCount, 1, 'ReadStream emitted single "end" event')
+    t.equals(self.dataCount, data.length, 'ReadStream emitted correct number of "data" events')
     data.forEach(function (d, i) {
-      var call = dataEvents[i]
+      var call = self.dataEvents[i]
       if (call) {
         t.equals(call.args.length, 1, 'ReadStream "data" event #' + i + ' fired with 1 argument')
         t.ok(call.args[0].key, 'ReadStream "data" event #' + i + ' argument has "key" property')
